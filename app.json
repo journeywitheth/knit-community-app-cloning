@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "뜨개마켓",
+    "slug": "knit-community-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "scheme": "knit-community",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F97066"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.knitcommunity.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F97066"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.knitcommunity.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-image-picker"
+    ]
+  }
+}
