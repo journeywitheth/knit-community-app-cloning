@@ -1,17 +1,25 @@
-import { useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useEffect, useCallback } from 'react';
+import { useRouter, useSegments } from 'expo-router';
 import { supabase } from '../services/supabase';
+import { signInWithOAuth, OAuthCancelledError } from '../services/oauth';
 import { useAuthStore } from '../stores/authStore';
 import type { Profile } from '../types/database';
 
 /**
  * 인증 상태를 관리하는 훅
- * - Supabase Auth 세션 변화를 감지
- * - 로그인/로그아웃 함수 제공
+ * - Supabase Auth 세션 변화를 감지하고 프로필을 불러옴
+ * - 카카오/구글/애플 OAuth 로그인 함수 제공
+ * - 로그아웃 함수 제공
  */
 export function useAuth() {
-  const { setAuth, clearAuth, setLoading, isAuthenticated, isLoading, profile } =
-    useAuthStore();
+  const {
+    setAuth,
+    clearAuth,
+    setLoading,
+    isAuthenticated,
+    isLoading,
+    profile,
+  } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -49,7 +57,7 @@ export function useAuth() {
       if (error) throw error;
       setAuth(userId, data as Profile);
     } catch {
-      // 프로필이 없으면 기본 프로필로 설정
+      // 프로필이 아직 없으면 기본 프로필로 설정 (DB 트리거가 생성할 때까지)
       setAuth(userId, {
         id: userId,
         role: 'doaniter',
@@ -62,33 +70,48 @@ export function useAuth() {
     }
   }
 
-  async function signInWithKakao() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'kakao',
-    });
-    if (error) throw error;
-  }
+  const signInWithKakao = useCallback(async () => {
+    try {
+      setLoading(true);
+      await signInWithOAuth('kakao');
+    } catch (error) {
+      if (error instanceof OAuthCancelledError) return;
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  async function signInWithGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-    });
-    if (error) throw error;
-  }
+  const signInWithGoogle = useCallback(async () => {
+    try {
+      setLoading(true);
+      await signInWithOAuth('google');
+    } catch (error) {
+      if (error instanceof OAuthCancelledError) return;
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  async function signInWithApple() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'apple',
-    });
-    if (error) throw error;
-  }
+  const signInWithApple = useCallback(async () => {
+    try {
+      setLoading(true);
+      await signInWithOAuth('apple');
+    } catch (error) {
+      if (error instanceof OAuthCancelledError) return;
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  async function signOut() {
+  const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     clearAuth();
     router.replace('/(auth)/login');
-  }
+  }, []);
 
   return {
     isAuthenticated,
